@@ -1,0 +1,20 @@
+#!/bin/bash -x
+
+#SBATCH --account=slns
+#SBATCH --nodes=16
+#SBATCH --ntasks=16
+#SBATCH --ntasks-per-node=1
+##SBATCH --gpus=2
+##SBATCH --gpus-per-task=2
+#SBATCH --time=06:00:00
+#SBATCH --output=output_%N.out
+#SBATCH --error=error_%N.er
+##SBATCH --partition=develgpus
+#SBATCH --partition=gpus
+#SBATCH --job-name=déjàvu
+#SBATCH --gres=gpu:1
+
+srun python model_driver_montbrio.py -s0 1 -s1 1 -s2 16 -s3 16 -s4 16 -s5 1 -s6 1
+
+#srun python model_driver_larterbreakspear.py -s0 1 -s1 1 -s2 16 -s3 1 -s4 16 -s5 16
+

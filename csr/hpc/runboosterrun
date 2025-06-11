@@ -1,0 +1,23 @@
+#!/bin/bash -x
+
+#SBATCH -A vbt
+#SBATCH -N 8
+#SBATCH -n 32
+##SBATCH --ntasks=4
+#SBATCH --ntasks-per-node=4
+##SBATCH --gpus=2
+##SBATCH --gpus-per-task=2
+##SBATCH --time=06:00:00
+#SBATCH --time=02:00:00
+#SBATCH --output=output.out
+#SBATCH --error=error.er
+##SBATCH --partition=develbooster
+#SBATCH --partition=booster
+#SBATCH --job-name=déjàvu
+#SBATCH --gres=gpu:4
+
+#srun python model_driver_montbrio.py -s0 1 -s1 1 -s2 16 -s3 16 -s4 16 -s5 1 -s6 1
+#python model_driver_montbrio.py -s0 4 -s1 4 -s2 4 -s3 2 -s4 4 -s5 3 -s6 4 -tl 1 -tls 1
+
+srun python model_driver_larterbreakspear.py -s0 1 -s1 1 -s2 16 -s3 1 -s4 16 -s5 16
+
