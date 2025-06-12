@@ -14,7 +14,7 @@ here = os.path.dirname(os.path.abspath(__file__))
 
 import sys
 # add path to PCI dir for pci_bin.py
-sys.path.append(os.path.abspath('./'))
+sys.path.append(os.path.abspath('/'))
 # from PCI.pci_bin import *
 
 import tqdm
@@ -29,57 +29,6 @@ def ci(array):
     return array.astype(dtype='i', order='C', copy=True)
 
 def make_kernel(source_file, warp_size, nh='nh'):
-
-    '''
-    Common Type Encodings
-
-    v: void
-    b: bool
-    c: char
-    a: signed char
-    h: unsigned char
-    s: short
-    t: unsigned short
-    i: int
-    j: unsigned int
-    l: long
-    m: unsigned long
-    x: long long
-    y: unsigned long long
-    f: float
-    d: double
-    e: long double
-    z: ... (varargs)
-
-    Pointer and Array Encodings
-
-    P: Pointer (*)
-    A: Array
-
-    Composite Type Encodings
-
-    Pv: void*
-    Pc: char*
-    Pa: signed char*
-    Ph: unsigned char*
-    Ps: short*
-    Pt: unsigned short*
-    Pi: int*
-    Pj: unsigned int*
-    Pl: long*
-    Pm: unsigned long*
-    Px: long long*
-    Py: unsigned long long*
-    Pf: float*
-    Pd: double*
-    Pe: long double*
-
-    Repeated Type Symbol
-
-    S_: Represents a repeated type that has already been specified.
-    This symbol is used to avoid redundant encoding of types
-    that appear more than once in the function signature.
-    '''
 
     try:
         with open(source_file, 'r') as fd:
@@ -96,10 +45,6 @@ def make_kernel(source_file, warp_size, nh='nh'):
             opts.append('-DNH=%s' % (nh,))
 
             idirs = [here]
-            # if my_rank == 0:
-            #     self.logger.info('nvcc options %r', opts)
-
-            # opts = ['-ftz=true']  # for faster rsqrtf in corr
 
             # no_extern_c=True gives the stupid named symbol not found error
             try:
@@ -111,16 +56,9 @@ def make_kernel(source_file, warp_size, nh='nh'):
                 print('Compilation failure \n %s', e)
                 exit(1)
 
-            # generic func signature creation
-
-            # all floats
-            # mod_func = '_Z10pci_kernelPfS_S_S_S_S_S_S_'
-            # mod_func = '_Z10pci_kernelPfS_S_S_S_S_PiS_'
-            # pff this is the one. repeating classifier needs to be annotated with 0
             mod_func = '_Z10pci_kernelPfS_S_S_S_S_PiS0_S0_PyS0_S_S_S_iiiiiiii'
 
             pci_ker = network_module.get_function(mod_func)
-            # print(network_module.get_function("pci_kernel").mangled_name)
 
     except FileNotFoundError as e:
         print('%s.\n  PCI.c file not found', e)
@@ -347,26 +285,6 @@ def pytestPCI(GPU_data, gpu_means_prestim, gpu_signal_centre, gpu_std_prestim,
         assert gpu_maxabsval_get[i,:].shape == max_absval_surrogates.shape
         assert gpu_signal_binary_get[i,:].shape == signal_binary.shape
 
-        # print('meansP', means_prestim)
-        # print('scentP', signal_centre)
-        # print('stdprP', std_prestim.shape)
-        # print('scnorP', signal_prestim_shuffle)
-        # print('scnorP', signal_binary.astype(int))
-        # print('spshuP', max_absval_surrogates)
-
-        # if not np.allclose(gpu_signal_binary_get[i,:], signal_binary):
-        #     # print(i, "th CUDA and Python binarized signals are equal.")
-        # # else:
-        #     print(i, "th CUDA and Python binarized signals are different.\n",
-        #           "Binary absolute error:", mae5, "\n", )
-                  # gpu_signal_binary_get[i,:], "\n",
-                  # signal_binary.astype(int), "\n")
-
-            # print('wi tr binJs', i, j, binJs.astype(int))
-        # print('signal_binary', signal_binary.astype(int))
-        # print('maxsorted', max_sorted)
-        # print('signal_binary', gpu_maxabsval_get[i,:])
-        # print('gbinalooped', i, gpu_signal_binary_get[i,:,:,:])
 
     print('avg over wi pypcis', pypcis)
 
@@ -425,24 +343,16 @@ def multistim(data):
             prestim = 0
             poststim = int(data.shape[0] / 2)
 
-            # beginstim = 4000
-            # beginunstim = 3000
-            # for i in range(5):
-            # prepost = np.zeros((1, 68, 2*stimbegin-onset))
-            # print(i, prestim, poststim)
-
             # chunk the ts
             prepost = data[prestim:poststim, :, j]
             # print('PPS', prepost.shape)
             prepost = np.mean(prepost.reshape(regions, -1, bins_averaging), axis=2)
-            # print(prepost.shape)
 
             # prepostall.append(prepost)
             prepostall[i, :, :, j] = prepost
 
             # prepostall = np.zeros((self.regions, self.stimmoment))
     data = np.array(prepostall)
-    # print('dsap', data.shape)
 
 
 def run_pci_analy(GPU_data, loggerobj, mpirank, nworkitems, ntrials, nsources, nbins, t_stim, nshuffles, percentile, stonset, testtoPY):
@@ -472,24 +382,14 @@ def run_pci_analy(GPU_data, loggerobj, mpirank, nworkitems, ntrials, nsources, n
     gpu_sumch = gpuarray.to_gpu(ci(np.zeros((nworkitems, nsources), )))
 
     gpu_ct = gpuarray.to_gpu(ci(np.zeros((nworkitems, ntrials), )))
-    # gpu_bits = gpuarray.to_gpu(ci(np.zeros((nworkitems, nbins),)))
-
-    # up to 64 nsources
-    # gpu_bits = gpuarray.to_gpu(np.zeros((nworkitems, nbins),dtype=np.uint64))
 
     bit_chunks = (nsources + 63) // 64
     gpu_bits = gpuarray.to_gpu(np.zeros((nworkitems, nbins, bit_chunks),dtype=np.uint64))
 
     gpu_pci_lst = gpuarray.to_gpu(cf(np.zeros((nworkitems), )))
 
-    # shared_mem_size = 2*(nworkitems * ntrials * nsources * t_stim * np.float32().nbytes)
-
-    # gpu_mem_info()
-
-    # print('gpuds', gpu_data.shape) # (625, 96, 16)
-
     ### make kernel ###
-    pci_ker, dfa_ker, lya_ker = make_kernel(source_file=here + '/../../models/pci.c', warp_size=32,) # hpc
+    pci_ker, dfa_ker, lya_ker = make_kernel(source_file=here + '/pci.c', warp_size=32,) # hpc
     # pci_ker, dfa_ker, lya_ker = make_kernel(source_file=here + '/models/pci.c', warp_size=32,) # local
     # todo mend project space hpc to this
     # pci_ker, dfa_ker, lya_ker = make_kernel(source_file=here + '/../PCI/pci.c', warp_size=32,)
@@ -537,9 +437,6 @@ def run_pci_analy(GPU_data, loggerobj, mpirank, nworkitems, ntrials, nsources, n
             block=block_dim, grid=grid_dim)
             # shared=shared_mem_size)
     drv.Context.synchronize()
-    # print(drv.mem_get_info())
-    # print(drv.get_current_device().name())
-    # print(drv.get_last_error())
 
     # print('gpu_signal_binary', gpu_signal_binary.get())
     gpu_pci_lst_get = gpu_pci_lst.get()
@@ -550,14 +447,7 @@ def run_pci_analy(GPU_data, loggerobj, mpirank, nworkitems, ntrials, nsources, n
         loggerobj.info('PCI grid_dim %s', grid_dim)
         loggerobj.info("PCI result shape %s", gpu_pci_lst_get.shape)
         print("\n")
-        
-    # threshold = 0.01
-    # mask = result > threshold
-    # print("pcilist", result[mask])
-    # sorted_arr = np.sort(gpu_pci_lst_get)[::-1]
-    # print("Best 10 results:")
-    # print(sorted_arr[:10])
-    # print('pci', gpu_pci_lst_get)
+
 
     testtoPython = testtoPY
     if testtoPython:
@@ -610,30 +500,6 @@ if __name__ == '__main__':
 
         return low_complexity_data
 
-    import matplotlib.pyplot as plt
-    # from csr.analysis.insert_database import init_database, check_already_analyse_database, insert_database
-    # import sqlite3
-
-    # parameter_name = ['g', 'be', 'wNoise', 'speed', 'tau_w_e', 'a_e', 'ex_ex', 'ex_in', 'in_ex', 'in_in']
-    # weights = 1
-    # lengths = 1
-    #
-    # path_root = '/p/project/cslns/vandervlag1/LiquidInterferenceLearning/data/'
-    # data = np.load(path_root + '/tavg_b10.npy', allow_pickle=True)
-    # # print('dataTSshape', data[0, 0]['TS'].shape)
-    #
-    # tavgdata = []
-    # for i in range(data.shape[1]):
-    #     tavgdata.append(data[0, i]['TS'])
-    # # reshape to orginal format
-    # tavgdata = np.asarray(np.transpose(tavgdata, (1, 2, 3, 0)))
-    # print(tavgdata.shape)
-
-
-    # test data
-     # orig
-    # GPU_data = np.random.rand(nworkitems, nbins, nsources, ntrials)
-
     # analyse 300ms before and after stimulus moment
     t_analysis = 300  # ms
     # n_inner_steps = int(tavg_period / dt)
@@ -656,48 +522,8 @@ if __name__ == '__main__':
     high_complexity_data = generate_high_complexity_data(nsims, ntrials, nsources, nbins)
     GPU_data = high_complexity_data
 
-    # Generate low complexity data
-    # low_complexity_data = generate_low_complexity_data(nsims, ntrials, nsources, nbins)
-    # GPU_data = low_complexity_data
-
     # GPU_data = np.random.rand(nsims, ntrials, nsources, nbins)
     print("GPU_test_data.shape", GPU_data.shape)
     pcis, lzcs = run_pci_analy(GPU_data[:,0], nsims, ntrials, nsources, nbins, t_stim, nshuffles, percentile, stonset, testtoPY=False)
 
     print("pcis", pcis)
-
-    ### put stuff in the database for later
-
-    # database = path_root + "/mGPU_TVB.db"
-    # table_name = "exploration"
-    #
-    # init_database(database, table_name)
-    #
-    # # print(data[0, 0]['TS'][:,0,:].squeeze().shape)
-    # # print(data[0, 0]['TS'].shape[0])
-    #
-    # results = []
-    # for j, i in enumerate(data[0]):
-    # #     # if i['noiseweight'] < 0.0099:
-    # #     print(j, i['g'], i['be'], i['wNoise'], i['speed'], i['tau_w_e'], i['a_e'], i['ex_ex'], i['ex_in'], i['in_ex'], i['in_in'])
-    # #     plt.plot((i['TS'][:, 0, :] * 1e3), 'k', alpha=.2)
-    # #     plt.show()
-    # #     print(i)
-    #     paramvalues = []
-    #     for key in parameter_name:
-    #         paramvalues.append(data[0, j][key])
-    #     # print(paramvalues)
-    #
-    #     if j<1:
-    #         result = analysis(parameter_name, paramvalues, i['TS'].squeeze(),
-    #                  weights, lengths, n_time, n_regions)
-    #
-    #         print(result)
-    #
-    #         results.append(result)
-    #
-    # try:
-    #     insert_database(database, table_name, results)
-    # except sqlite3.IntegrityError as e:
-    #     print("Error:", e)
-    #     print("UNIQUE constraint failed. Some data may already exist in the database.")

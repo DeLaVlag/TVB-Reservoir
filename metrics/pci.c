@@ -6,12 +6,6 @@
 #include <curand_kernel.h>
 #include <math.h>
 
-//const int stonset = 0; //2500;
-
-//const int nworkitems = 16;
-//const int ntrials = 2; // number of simulations/realisations to analyse for one PCI value
-//const int nsources = 3;
-//const int NBINSARR = 4;
 
 __device__ void binarise_signals(float *signal_m, int t_stim, int nshuffles, int percentile, int nworkitems,
     int ntrials, int nsources, int nbins, int stonset, int *signal_binary, int idx, float *means_prestim, float *signal_centre,
@@ -24,9 +18,6 @@ __device__ void binarise_signals(float *signal_m, int t_stim, int nshuffles, int
             float sum = 0.0;
             for (int t = stonset; t < t_stim; t++) {
                 sum += signal_m[(trial * nsources * nbins) + (source * nbins) + t];
-//                printf("signm %f ind %d trial %d source %d t %d\n",
-//                    signal_m[(trial * nsources * nbins) + (source * nbins) + t],
-//                    (trial * nsources * nbins) + (source * nbins) + t, trial, source, t);
             }
             means_prestim[(trial * nsources) + source] = sum / (t_stim - stonset);
 
@@ -34,13 +25,9 @@ __device__ void binarise_signals(float *signal_m, int t_stim, int nshuffles, int
                 float mean_val = means_prestim[trial * nsources + source];
                 float signal_val = signal_m[trial * nsources * nbins + source * nbins + t];
                 signal_centre[trial * nsources * nbins + source * nbins + t] = signal_val / mean_val - 1;
-//                    printf("signm %f ind %d trial %d source %d t %d\n",
-//                    signal_m[(trial * nsources * nbins) + (source * nbins) + t],
-//                    (trial * nsources * nbins) + (source * nbins) + t, trial, source, t);
+
             }
-//            __syncthreads();
         }
-//        __syncthreads();
     }
 
     // Calculate standard deviation and normalize signal centre in a single loop
@@ -58,15 +45,11 @@ __device__ void binarise_signals(float *signal_m, int t_stim, int nshuffles, int
                 float centered_val = signal_centre[(trial * nsources * nbins) + (source * nbins) + t];
                 signal_centre_norm[trial * nsources * nbins + source * nbins + t] = centered_val / std_val;
             }
-//            __syncthreads();
         }
-//        __syncthreads();
     }
 
     curandState state;
     curand_init(1234, idx, 0, &state);
-//    extern __shared__ float shared_mem[];
-//    float *signal_prestim_shufflex = shared_mem;
 
     // Bootstrapping: Shuffle prestim signal in time, intra-trial
     for (int trial = 0; trial < ntrials; trial++) {
@@ -75,9 +58,7 @@ __device__ void binarise_signals(float *signal_m, int t_stim, int nshuffles, int
                 signal_prestim_shuffle[(trial * nsources * t_stim) + (source * t_stim) + t] =
                     signal_centre_norm[(trial * nsources * nbins) + (source * nbins) + t];
             }
-//            __syncthreads();
         }
-//        __syncthreads();
     }
 
     for (int i_shuffle = 0; i_shuffle < nshuffles; i_shuffle++) {
@@ -91,13 +72,8 @@ __device__ void binarise_signals(float *signal_m, int t_stim, int nshuffles, int
                         signal_prestim_shuffle[(trial * nsources * t_stim) + (source * t_stim) + swap_idx];
                     signal_prestim_shuffle[(trial * nsources * t_stim) + (source * t_stim) + swap_idx] = temp;
 
-//                    atomicAdd(&signal_prestim_shuffle[(trial * nsources * t_stim) + (source * t_stim) + t],
-//                        signal_prestim_shuffle[(trial * nsources * t_stim) + (source * t_stim) + swap_idx]);
-//                    atomicAdd(&signal_prestim_shuffle[(trial * nsources * t_stim) + (source * t_stim) + swap_idx], temp);
                 }
-//                __syncthreads();
             }
-//            __syncthreads();
         }
 
         // Calculate average over trials and maximum absolute value in a single loop
@@ -109,19 +85,14 @@ __device__ void binarise_signals(float *signal_m, int t_stim, int nshuffles, int
                     sum += signal_prestim_shuffle[(trial * nsources * t_stim) + (source * t_stim) + t];
                 }
                 shuffle_avg[source * t_stim + t] = sum / ntrials;
-//                atomicAdd(&shuffle_avg[source * t_stim + t], sum / ntrials);
 
                 float val = shuffle_avg[source * t_stim + t];
                 if (fabs(val) > max_val) {
                     max_val = fabs(val);
                 }
             }
-//            __syncthreads();
         }
-//        __syncthreads();
-        // no raceconditions observed yet but could be
         max_absval_surrogates[i_shuffle] = max_val;
-//        atomicAdd(&max_absval_surrogates[i_shuffle], max_val);
     }
 
     // Sort max_absval_surrogates from low to high
@@ -130,9 +101,7 @@ __device__ void binarise_signals(float *signal_m, int t_stim, int nshuffles, int
             if (max_absval_surrogates[j] > max_absval_surrogates[j + 1]) {
                 float temp = max_absval_surrogates[j];
                 max_absval_surrogates[j] = max_absval_surrogates[j + 1];
-//                atomicAdd(&max_absval_surrogates[j], max_absval_surrogates[j + 1]);
                 max_absval_surrogates[j + 1] = temp;
-//                atomicAdd(&max_absval_surrogates[j + 1], temp);
             }
         }
     }
@@ -144,45 +113,22 @@ __device__ void binarise_signals(float *signal_m, int t_stim, int nshuffles, int
         thr_idx = 0;
     } else {
         thr_idx = (nshuffles - (int)(nshuffles / percentile))-1;
-//        printf("maxab[the_idx] %f \n", max_absval_surrogates[thr_idx]);
     }
 
     float signalThresh = max_absval_surrogates[thr_idx];
-//    printf("signalThreshGu %f \n", signalThresh);
 
-//    extern __shared__ float shared_memB[];
-//    float *signal_binaryx = shared_memB;
     //Binarize the signal
     // watch out for race conditions! atomic add
     for (int trial = 0; trial < ntrials; trial++) {
         for (int source = 0; source < nsources; source++) {
             for (int t = 0; t < nbins; t++) {
                 float val = signal_centre_norm[(trial * nsources * nbins) + (source * nbins) + t];
-//                signal_binary[(trial * nsources * nbins) + (source * nbins) + t] = (val > signalThresh) ? 1.0 : 0.0;
                 if (val > signalThresh){
-//                    atomicAdd(&signal_binary[(trial * nsources * nbins) + (source * nbins) + t], 1.0f);
                     signal_binary[(trial * nsources * nbins) + (source * nbins) + t] = 1;
                 }
-//                printf("idx %d val %f val > signalThresh %f \n", (trial * nsources * nbins) + (source * nbins) + t,
-//                    val, (val > signalThresh) ? 1.0 : 0.0);
             }
-//            __syncthreads();
         }
-//        __syncthreads();
     }
-
-
-//    for (int trial = 0; trial < ntrials; trial++) {
-//        for (int source = 0; source < nsources; source++) {
-//            for (int t = 0; t < nbins; t++) {
-//                float val = signal_binary[(trial * nsources * nbins) + (source * nbins) + t];
-////                signal_binary[(trial * nsources * nbins) + (source * nbins) + t] =
-////                    signal_binaryx[(trial * nsources * nbins) + (source * nbins) + t];
-////                printf("tidx %d lidx %d val %f\n", idx, (trial * nsources * nbins) + (source * nbins) + t, val);
-//            }
-////            __syncthreads();
-//        }
-//    }
 }
 
 __device__ void sort_binj(int *sorted_binJ, int *signal_binary, int* sumCh,
@@ -208,12 +154,8 @@ __device__ void sort_binj(int *sorted_binJ, int *signal_binary, int* sumCh,
             // should be nbins-tstim if nbins != tstim !! keep symmetric for now
             for (int k = t_stim; k < nbins; k++) {
                 sum += binJ[i * nbins + k];
-//                if (idx == 1)
-//                    printf("idx %d trial %d index %d binj %d \n", idx, trial, i * nbins + k, binJ[i * nbins + k]);
             }
             sumCh[i] = sum;
-//            if (idx == 1)
-//                printf("idx %d trial %d source %d sum %d \n", idx, trial, i, sum);
         }
 
         // Sort binJ based on sum
@@ -242,11 +184,6 @@ __device__ void sort_binj(int *sorted_binJ, int *signal_binary, int* sumCh,
         for (int i = 0; i < nsources; i++) {
             for (int k = 0; k < t_stim; k++) {
                 sorted_binJ[trial * nsources * t_stim + i * t_stim + k] = binJ[i * nbins + (k+t_stim)];
-//                if (idx == 1) {
-//                    printf("in copy idx %d trial %d index %d binj %d \n", idx, trial, i * nbins + (k+t_stim), binJ[i * nbins + (k+t_stim)]);
-//                    printf("in sobi idx %d trial %d index %d binj %d \n", idx, trial,
-//                        trial * nsources * t_stim + i * t_stim + k, sorted_binJ[trial * nsources * t_stim + i * t_stim + k]);
-//                }
             }
         }
 }
@@ -265,47 +202,6 @@ __device__ int lz_complexity_2D(int *Dnew, int *ct, int trial, int idx, unsigned
     bool stop = false;
     int fnd = 0;
 
-    // Convert each column to a sequence of bits
-    // checked bitsy part
-//    for (int y = 0; y < nbins; y++) {
-//        unsigned long long int bit_value = 0;
-//        for (int x = 0; x < nsources; x++) {
-//            bit_value = (bit_value << 1) | (Dnew[trial * nsources * nbins + x * nbins + y] & 1);
-////            printf("Dnew %d \n", Dnew[trial * nsources * nbins + x * nbins + y]);
-//        }
-//        bits[y] = bit_value;
-////        printf("y %d bit_value %d\n", y, bit_value);
-//    }
-//
-//        // Main loop
-//    while (!stop) {
-////        int a = (q == r) ? i + k - 1 : nsources;
-//        int a = 0;
-//        if (q==r) a = i + k - 1;
-//        else a = nsources;
-//
-//        int found = 0;
-//        for (int shift = 0; shift <= a - k; shift++) {
-////            found |= ((bits[q - 1] >> shift) & ((1 << k) - 1)) == (bits[r - 1] & ((1 << k) - 1));
-////            if (found) {
-////                fnd++;
-////                break;
-//
-//            // Right shift the bits of bits[q - 1] by 'shift' positions and mask the lowest 'k' bits
-//            unsigned long long int shifted_bits = (bits[q - 1] >> shift) & ((1 << k) - 1);
-//
-//            // Mask the lowest 'k' bits of bits[r - 1]
-//            unsigned long long int masked_bits = bits[r - 1] & ((1 << k) - 1);
-//
-//            if (shifted_bits == masked_bits) {
-////                printf("idx %d trial %d sht %d\n", idx, trial, shifted_bits);
-////                printf("idx %d trial %d mbt %d\n", idx, trial, masked_bits);
-//                found = true;
-//                fnd++;
-//                break;
-//
-//            }
-//        }
 
     const int bitschunk = 64;
     const int MAX_BITSY = 64;
@@ -333,22 +229,6 @@ __device__ int lz_complexity_2D(int *Dnew, int *ct, int trial, int idx, unsigned
         }
     }
 
-    // Main loop
-//    while (!stop) {
-//        int a = (q == r) ? i + k - 1 : nsources;
-//        int found = 0;
-//        for (int shift = 0; shift <= a - k; shift++) {
-//            for (int chunk = 0; chunk < num_chunks; chunk++) {
-//                unsigned long long int shifted_bits = (bits[(q - 1) * num_chunks + chunk] >> shift) & ((1ULL << k) - 1);
-//                unsigned long long int masked_bits = bits[(r - 1) * num_chunks + chunk] & ((1ULL << k) - 1);
-//                if (shifted_bits == masked_bits) {
-//                    found = true;
-//                    fnd++;
-//                    break;
-//                }
-//            }
-//            if (found) break;
-//        }
 
     while (!stop) {
         int a = (q == r) ? i + k - 1 : nsources;
@@ -425,48 +305,9 @@ __device__ int lz_complexity_2D(int *Dnew, int *ct, int trial, int idx, unsigned
         }
     }
 
-//    printf("idx %d trial %d found %d c %d\n", idx, trial, fnd, c);
     return c;
 }
 
-//__device__ float pci_norm_factor(int *D, int trial, int ntrials, int nsources, int t_stim)
-//{
-//    float p1 = 0.0f;
-////    int p1 = 0;
-//    float p0 = 0.0f;
-////    int p0 = 0;
-//    float H = 0.0f;
-////    int L = ntrials*nsources*nbins;
-//    int L = nsources*t_stim;
-//
-//    for (int i = 0; i < L; i++) {
-//        p1+= (1.0 * D[i+trial*L] == 1);
-////        p1[trial] += (1.0 * D[i] == 1);
-////        p1 /= L;
-//
-//        // when flattened it doesnt follow the structure, as long as the sum is equal. seems so
-////        printf("D[i] %d\n", D[i+trial*L]);
-//    }
-//
-////    p1[trial] /= L;
-//    p1 /= L;
-//    p0 = 1.0f - p1;
-////    printf("p1 %f\n", p1);
-////    printf("p0 %f\n", p0);
-////    p0[trial] = 1.0f - p1[trial];
-//
-//    if (p1 * p0 != 0) {
-////    if (p1[trial] * p0[trial] != 0) {
-////        printf("p0=%g\np1=%g\n", p0, p1);
-//        H = -p1 * log2f(p1) - p0 * log2f(p0);
-////        H = -p1[trial] * log2f(p1[trial]) - p0[trial] * log2f(p0[trial]);
-////        printf("H %f\n", (L * H) / log2f(L));
-//        return (L * H) / log2f(L);
-//    } else {
-////        printf("p0=%g\np1=%g\n", p0, p1);
-//        return 0.0f;
-//    }
-//}
 
 // old function causes divide by zero for ntrials = 1 and low complexities.
 // this function should fix that or at least no infs with 1 dimension on the statevar position
@@ -592,9 +433,4 @@ __global__  void pci_kernel(
     // Write pci_lsts to gpu_output
     gpu_pci_lst[idx] = avg_gpu_pci;
 
-//    for (int trial = 0; trial < ntrials; trial++) {
-//        for (int source = 0; source < nsources; source++) {
-//            gpu_results[(idx * ntrials * nsources) + trial * nsources + source] = means_prestim[(trial * nsources) + source];
-//        }
-//    }
 }

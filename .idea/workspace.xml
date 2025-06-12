@@ -5,11 +5,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="efe216cb-cbbc-4a74-a438-bba992fd735a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/TVB-Reservoir.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plottools/plot_print_all.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/TVB-Reservoir.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/TVB-Reservoir.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/gpu/consciousA_GPU.py" beforeDir="false" afterPath="$PROJECT_DIR$/metrics/pci_driver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/gpu/create_task.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/create_task.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/gpu/gpu_dfa.py" beforeDir="false" afterPath="$PROJECT_DIR$/metrics/gpu_dfa.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/gpu/gpu_lya.py" beforeDir="false" afterPath="$PROJECT_DIR$/metrics/gpu_lya.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/gpu/torch_Tik.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/torch_Tik.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/gpu/upsamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/upsamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/hpc/activate_2024.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/hpc/activate_2025.sh" beforeDir="false" afterPath="$PROJECT_DIR$/hpc/activate_2025.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/hpc/runboosterrun" beforeDir="false" afterPath="$PROJECT_DIR$/hpc/runboosterrun" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/hpc/runjusuf" beforeDir="false" afterPath="$PROJECT_DIR$/hpc/runjusuf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/plottools/heatmaps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/plottools/plot_3d_dfapcilya.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/plottools/plotting_multiple.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/csr/tasks/lorentz.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/lorentz.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_driver_larterbreakspear.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_driver_larterbreakspear.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_driver_montbrio.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_driver_montbrio.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/TFparameters.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/larter_breakspearb.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/montbrio_heunb.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/pci.c" beforeDir="false" afterPath="$PROJECT_DIR$/metrics/pci.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/zerlaut.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/zerlaut.h" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,9 +39,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 3
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="2yMbblEvf8uJOQPJRBHbtxcJ7md" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -30,11 +50,26 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.model_driver_larterbreakspear.executor": "Run",
+    "Python.model_driver_montbrio.executor": "Run",
+    "Python.plot_3d_dfapcilya.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master"
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/home/michiel/Documents/Repos/TVB-Reservoir/data",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/data" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/utils" />
+      <recent name="$PROJECT_DIR$/metrics" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -51,5 +86,38 @@
       <updated>1749647462670</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/metrics/gpu_lya.py</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

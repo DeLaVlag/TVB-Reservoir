@@ -1,7 +1,4 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from csr.plottools.heatmaps import *
-
+from plottools.plot_print_all import *
 
 # Define the system of ODEs
 def _lorenz_system(x, y, z):

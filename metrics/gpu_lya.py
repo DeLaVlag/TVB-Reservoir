@@ -5,12 +5,7 @@ import numpy as np
 from scipy.integrate import solve_ivp
 
 import os
-os.environ["PATH"] += ":/usr/local/cuda-10.2/bin"
-# print(os.environ["PATH"])
-
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# from csr.analysis.conscious_analysis import lyapunov_ex
+# os.environ["PATH"] += ":/usr/local/cuda-10.2/bin"
 
 def computeLYA_gpu(timeseries, loggerobj, mpirank, emb_dim = 3, lag = 1, min_tsep = 2, trajectory_len = 20, tau = 1):
 
@@ -139,7 +134,6 @@ def computeLYA_gpu(timeseries, loggerobj, mpirank, emb_dim = 3, lag = 1, min_tse
     div_traj_gpu = cuda.mem_alloc(nsims * nregions * trajectory_len * 4)
     results_gpu = cuda.mem_alloc(results.nbytes)
 
-
     # Copy data to the GPU
     cuda.memcpy_htod(timeseries_gpu, timeseries)
 
@@ -169,7 +163,6 @@ def computeLYA_gpu(timeseries, loggerobj, mpirank, emb_dim = 3, lag = 1, min_tse
         loggerobj.info("LYA data shape %s", timeseries.shape)
         loggerobj.info("LYA kernel grid %s", grid_dim)
         print("\n")
-
 
 
     # Copy results back to host
@@ -302,38 +295,6 @@ def score_causation_matrix(causation_matrix, lyapunov_exponents, nsims, threshol
 
     top_lya_mat = np.array(top_lya_mat)
     print('top_lya_mat', top_lya_mat.shape)
-
-    # for idx, ax in enumerate(axes.flatten()):
-    #     im = ax.imshow(top_matrices[idx], cmap="coolwarm", vmin=-.03, vmax=.03)
-    #     ax.set_title(f"Score: {top_scores[idx][1]:.2f}")
-    #     ax.set_xlabel("Region")
-    #     ax.set_ylabel("Region")
-
-    # for idx, ax in enumerate(axes.flatten()):
-    #     im = ax.imshow(top_lya_mat[idx], cmap="coolwarm", vmin=-.03, vmax=.03)
-    #     ax.set_title(f"Score: {top_scores[idx][1]:.2f}")
-    #     ax.set_xlabel("Region")
-    #     ax.set_ylabel("Region")
-
-    # fig, axes = plt.subplots(1, nsims, figsize=(20, 5), sharey=True)
-    # for sim_idx in range(nsims):
-
-    # for idx, ax in enumerate(axes.flatten()):
-    #     # Reshape to square matrix if each vector represents a 2D structure (e.g., (62,62))
-    #     if top_lya_mat.shape[1] == 62 * 62:
-    #         matrix = top_lya_mat[idx].reshape(62, 62)
-    #     else:
-    #         # If each is 1D, we can visualize it as a single-row heatmap or a single column
-    #         matrix = top_lya_mat[idx].reshape(1, 62)
-    #
-    #     im = ax.imshow(matrix, cmap="coolwarm", aspect='auto', vmin=-1, vmax=1)
-    #     ax.set_title(f"Matrix {idx + 1}")
-    #     ax.set_xlabel("Region Index")
-    #     ax.set_ylabel("Region Index" if matrix.shape[0] > 1 else "Single Row")
-    #
-    # fig.colorbar(im, ax=axes.ravel().tolist(), orientation="horizontal")
-    # plt.tight_layout(rect=[0, 0, 1, 0.96])
-    # plt.show()
 
     return
 
@@ -513,7 +474,5 @@ if __name__ == "__main__":
     # gpu_device_info()
 
     lyapunov_exponents = test_Lyapunov()
-    # causation_matrices = test_causiation_matrix()
-    #
-    # score_causation_matrix(causation_matrices, lyapunov_exponents, nsims=36, threshold=0.1)
+
 

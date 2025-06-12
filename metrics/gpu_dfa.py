@@ -64,17 +64,11 @@ def computeDFA_gpu(data, loggerobj, mpirank):
     # Get the computeDFA kernel function
     computeDFA_kernel = mod.get_function("computeDFA")
 
-    # Host function to invoke the PyCUDA kernel
-
     min_window_size = 10  # Minimum window size
     max_window_size = int(data.shape[2]/2)  # Maximum window size (half of the time series length)
-    # min_window_size = 4  # Minimum window size
-    # max_window_size = 100 # Maximum window size (half of the time series length)
+
     num_windows = 10
     window_sizes = np.unique(np.logspace(np.log10(min_window_size), np.log10(max_window_size), num=num_windows, dtype=np.int32))
-
-    # window_sizes = np.array([4, 8, 16, 32, 64], dtype=np.int32)
-    # window_sizes = np.array([ 4,  7, 15, 31, 62], dtype=np.int32)
 
     nsims, num_regions, num_steps = data.shape
     num_window_sizes = len(window_sizes)
