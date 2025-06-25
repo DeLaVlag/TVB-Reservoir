@@ -1,0 +1,10 @@
+tvb-library
+tvb-data
+pycuda
+torch>=2.0
+numpy
+mpi4py
+tqdm
+scipy
+matplotlib
+scikit-learn
