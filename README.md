@@ -14,6 +14,10 @@ and will be published in its proceedings.
 
 ---
 
+## 👤 Author
+
+Michiel van der Vlag
+
 ## 🚀 Features
 
 - GPU-accelerated reservoir computing for brain network dynamics  
